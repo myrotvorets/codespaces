@@ -2,10 +2,31 @@
     "x-build": {
         "name": "PSB API Microservice (Node.js)",
         "image-name": "psb-api-microservice-node",
-        "image-version": "1.0.2"
+        "image-version": "1.0.3"
     },
     "build": {
         "dockerfile": "./Dockerfile",
         "context": "."
+    },
+    "remoteUser": "vscode",
+    "postCreateCommand": "/usr/local/bin/post-create.sh",
+    "overrideCommand": false,
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dlech.chmod",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "timonwong.shellcheck",
+                "ms-azuretools.vscode-docker",
+                "zhiayang.tabindentspacealign",
+                "42Crunch.vscode-openapi",
+                "natqe.reload",
+                "redhat.vscode-yaml"
+            ],
+            "settings": {
+                "files.autoSave": "onWindowChange"
+            }
+        }
     }
 }

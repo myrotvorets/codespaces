@@ -14,4 +14,6 @@ RUN \
 COPY rootfs /
 WORKDIR /usr/src/service
 
-RUN chown -R "${CONTAINER_USER}:${CONTAINER_USER}" /usr/src/service
+RUN \
+    chown -R "${CONTAINER_USER}:${CONTAINER_USER}" /usr/src/service && \
+    install -d -o "${CONTAINER_USER}" -g "${CONTAINER_USER}" /var/log/app

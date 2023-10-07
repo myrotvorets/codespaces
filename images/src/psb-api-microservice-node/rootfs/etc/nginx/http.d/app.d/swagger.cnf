@@ -1,5 +1,5 @@
 location = / {
-    return 302 /swagger/;
+    rewrite ^ $scheme://$http_host/swagger/ redirect;
 }
 
 location /swagger/ {

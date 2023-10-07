@@ -1,3 +1,5 @@
 #!/bin/sh
 
+APP_USER="${CONTAINER_USER:-vscode}"
+/usr/bin/install -d -o "${APP_USER}" -g "${APP_USER}" -m 0755 /var/log/app
 exec cat > /var/log/app/app.log
