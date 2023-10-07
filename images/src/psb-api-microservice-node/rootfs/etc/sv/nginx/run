@@ -11,30 +11,42 @@ NGINX_USER="${CONTAINER_USER:-vscode}"
 COMMAND=/usr/sbin/nginx
 PID_FILE=/run/nginx/nginx.pid
 
-if [ -f /etc/nginx/http.d/app.d/swagger.cnf ] && [ -L /etc/nginx/http.d/app.d/swagger.conf ]; then
-    rm -f /etc/nginx/http.d/app.d/swagger.conf
-    if nslookup -type=A swagger. > /dev/null 2>&1; then
+if [ -f /etc/nginx/http.d/app.d/swagger.cnf ]; then
+    if [ -L /etc/nginx/http.d/app.d/swagger.conf ]; then
+        rm -f /etc/nginx/http.d/app.d/swagger.conf
+    fi
+
+    if [ ! -e /etc/nginx/http.d/app.d/swagger.conf ] && nslookup -type=A swagger. > /dev/null 2>&1; then
         ln -s /etc/nginx/http.d/app.d/swagger.cnf /etc/nginx/http.d/app.d/swagger.conf
     fi
 fi
 
-if [ -f /etc/nginx/http.d/app.d/metrics.cnf ] && [ -L /etc/nginx/http.d/app.d/metrics.conf ]; then
-    rm -f /etc/nginx/http.d/app.d/metrics.conf
-    if nslookup -type=A otel-collector. > /dev/null 2>&1; then
+if [ -f /etc/nginx/http.d/app.d/metrics.cnf ]; then
+    if [ -L /etc/nginx/http.d/app.d/metrics.conf ]; then
+        rm -f /etc/nginx/http.d/app.d/metrics.conf
+    fi
+
+    if [ ! -e /etc/nginx/http.d/app.d/metrics.conf ] && nslookup -type=A otel-collector. > /dev/null 2>&1; then
         ln -s /etc/nginx/http.d/app.d/metrics.cnf /etc/nginx/http.d/app.d/metrics.conf
     fi
 fi
 
-if [ -f /etc/nginx/http.d/adminer.cnf ] && [ -L /etc/nginx/http.d/adminer.conf ]; then
-    rm -f /etc/nginx/http.d/adminer.conf
-    if nslookup -type=A adminer. > /dev/null 2>&1; then
+if [ -f /etc/nginx/http.d/adminer.cnf ]; then
+    if [ -L /etc/nginx/http.d/adminer.conf ]; then
+        rm -f /etc/nginx/http.d/adminer.conf
+    fi
+
+    if [ ! -e /etc/nginx/http.d/adminer.conf ] && nslookup -type=A adminer. > /dev/null 2>&1; then
         ln -s /etc/nginx/http.d/adminer.cnf /etc/nginx/http.d/adminer.conf
     fi
 fi
 
-if [ -f /etc/nginx/http.d/grafana.cnf ] && [ -L /etc/nginx/http.d/grafana.conf ]; then
-    rm -f /etc/nginx/http.d/grafana.conf
-    if nslookup -type=A grafana. > /dev/null 2>&1; then
+if [ -f /etc/nginx/http.d/grafana.cnf ]; then
+    if [ -L /etc/nginx/http.d/grafana.conf ]; then
+        rm -f /etc/nginx/http.d/grafana.conf
+    fi
+
+    if [ ! -e /etc/nginx/http.d/grafana.conf ] && nslookup -type=A grafana. > /dev/null 2>&1; then
         ln -s /etc/nginx/http.d/grafana.cnf /etc/nginx/http.d/grafana.conf
     fi
 fi

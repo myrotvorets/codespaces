@@ -9,7 +9,7 @@ RUN \
     apk add --no-cache nginx && \
     sed -i "s/user nginx;/user ${CONTAINER_USER};/" /etc/nginx/nginx.conf && \
     chown -R "${CONTAINER_USER}:${CONTAINER_USER}" /run/nginx /var/log/nginx /var/lib/nginx && \
-    rm -f /etc/nginx/httpd.d/default.conf
+    rm -f /etc/nginx/http.d/default.conf
 
 COPY rootfs /
 WORKDIR /usr/src/service
