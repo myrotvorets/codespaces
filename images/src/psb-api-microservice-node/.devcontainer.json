@@ -2,7 +2,7 @@
     "x-build": {
         "name": "PSB API Microservice (Node.js)",
         "image-name": "psb-api-node",
-        "image-version": "1.0.0"
+        "image-version": "1.0.1"
     },
     "build": {
         "dockerfile": "./Dockerfile",
