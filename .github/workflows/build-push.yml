@@ -1,0 +1,108 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Prepare list of images to build
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.set-matrix.outputs.images }}
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+
+      - name: Set matrix
+        id: set-matrix
+        run: echo images="$(jq '."x-build"' images/src/*/.devcontainer.json | jq --slurp -c .)" >> "${GITHUB_OUTPUT}"
+
+  publish-images:
+    needs: prepare
+    name: 'Publish ${{ matrix.image.name }}'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.prepare.outputs.images) }}
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          fetch-depth: 0
+
+      - name: Check changed files
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            base="${{ github.event.before }}"
+            head="${{ github.event.after }}"
+            image="images/src/${{ matrix.image.image-name }}"
+            changes="$(git diff --name-only "${base}" "${head}" -- "${image}" | grep -Fv "${image}/README.md" || true)"
+            if [ -n "${changes}" ]; then
+              echo needs_build=true >> "${GITHUB_OUTPUT}"
+            else
+              echo needs_build=false >> "${GITHUB_OUTPUT}"
+            fi
+          else
+            echo needs_build=true >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # v2.1.0
+        if: steps.changes.outputs.needs_build == 'true'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4b4e9c3e2d4531116a6f8ba8e71fc6e2cb6e6c8c # v2.5.0
+        if: steps.changes.outputs.needs_build == 'true'
+
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+        if: steps.changes.outputs.needs_build == 'true'
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set versions
+        if: steps.changes.outputs.needs_build == 'true'
+        id: set-versions
+        run: |
+          echo major="$(echo "${{ matrix.image.image-version }}" | cut -d. -f1)" >> "${GITHUB_OUTPUT}"
+          echo minor="$(echo "${{ matrix.image.image-version }}" | cut -d. -f2)" >> "${GITHUB_OUTPUT}"
+          echo patch="$(echo "${{ matrix.image.image-version }}" | cut -d. -f3)" >> "${GITHUB_OUTPUT}"
+
+      - name: Check if image already exists
+        if: steps.changes.outputs.needs_build == 'true'
+        id: exists
+        run: |
+          if docker buildx imagetools inspect "ghcr.io/${{ github.repository }}/${{ matrix.image.image-name }}:${{ steps.set-versions.outputs.major }}.${{ steps.set-versions.outputs.minor }}.${{ steps.set-versions.outputs.patch }}" > /dev/null 2>&1; then
+            echo exists=true >> "${GITHUB_OUTPUT}"
+          else
+            echo exists=false >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Install @devcontainers/cli
+        run: npm install -g @devcontainers/cli
+        if: ${{ steps.changes.outputs.needs_build == 'true' && steps.exists.outputs.exists != 'true' }}
+
+      - name: Build image
+        run: |
+          devcontainer build \
+            --workspace-folder "images/src/${{ matrix.image.image-name }}" \
+            --platform linux/amd64,linux/arm64 \
+            --image-name=ghcr.io/${{ github.repository }}/${{ matrix.image.image-name }}:${{ steps.set-versions.outputs.major }}.${{ steps.set-versions.outputs.minor }}.${{ steps.set-versions.outputs.patch }} \
+            --image-name=ghcr.io/${{ github.repository }}/${{ matrix.image.image-name }}:${{ steps.set-versions.outputs.major }}.${{ steps.set-versions.outputs.minor }} \
+            --image-name=ghcr.io/${{ github.repository }}/${{ matrix.image.image-name }}:${{ steps.set-versions.outputs.major }} \
+            --image-name=ghcr.io/${{ github.repository }}/${{ matrix.image.image-name }}:latest \
+            --push
+        if: ${{ steps.changes.outputs.needs_build == 'true' && steps.exists.outputs.exists != 'true' }}

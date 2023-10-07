@@ -1,0 +1,7 @@
+location = / {
+    return 302 /swagger/;
+}
+
+location /swagger/ {
+    proxy_pass http://swagger:8080;
+}

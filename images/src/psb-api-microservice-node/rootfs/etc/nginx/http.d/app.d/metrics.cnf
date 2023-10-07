@@ -1,0 +1,3 @@
+location /metrics {
+    proxy_pass http://otel-collector:8889;
+}
