@@ -5,6 +5,7 @@ RUN apk add --no-cache vips vips-cpp
 
 # Tools for experiments
 RUN apk add --no-cache mc
+RUN npm i -g ts-node typescript npm-check-updates
 
 # nginx
 RUN \
