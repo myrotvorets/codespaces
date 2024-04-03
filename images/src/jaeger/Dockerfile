@@ -1,4 +1,4 @@
-FROM jaegertracing/all-in-one:1.55.0@sha256:f6b5d09073f14f76873d300f565a6691d815e81bea8e07e1dc3ff67e0596dd4e
+FROM jaegertracing/all-in-one:1.56.0@sha256:d2cd4c226624bdc116decd3106091b4df9882da8db42f8550293596cab79b8ea
 USER root
 RUN  install -d -m 0755 -o 10001 /badger /badger/data /badger/key
 USER 10001
