@@ -1,4 +1,4 @@
-FROM ghcr.io/sjinks/codespaces/nodejs:latest@sha256:633e58539693502cd1b13047bd0c8c699b9ad00f977426e5b459443d76dd0cb9
+FROM ghcr.io/sjinks/codespaces/nodejs:latest@sha256:561b1f5891a606594b04ec065f28ebd4f4e4ebd58b37cadb0ffbfaccb34a3129
 
 # For microservices depending on sharp
 RUN apk add --no-cache vips vips-cpp
