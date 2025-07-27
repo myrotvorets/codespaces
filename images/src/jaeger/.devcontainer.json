@@ -2,7 +2,7 @@
     "x-build": {
         "name": "jaegertracing/all-in-one with badger",
         "image-name": "jaeger",
-        "image-version": "1.0.11"
+        "image-version": "1.1.0"
     },
     "build": {
         "dockerfile": "./Dockerfile",
